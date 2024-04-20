@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Exception;
 use Illuminate\Http\Request;
 use App\Models\TodoListModel;
+use Illuminate\Support\Facades\Validator;
 use App\Http\Requests\CreateTodoListRequest;
 use App\Http\Requests\UpdateTodoListRequest;
 use App\Http\Requests\UpdateStatusTodoListRequest;
@@ -32,12 +33,27 @@ class TodoListController extends Controller
     /**
      * Cria a tarefa
      *
-     * @param CreateTodoListRequest $request
+     * @param Request $request
      * @return void
      * @author Junior <hjuniorbsilva@gmail.com>
      */
-    public function create(CreateTodoListRequest $request)
+    public function create(Request $request)
     {
+
+        $validator = Validator::make($request->all(), [
+            'title' => 'required',
+            'description' => 'required',
+        ], [
+            'title.required' => 'Título é obrigátorio',
+            'description.required' => 'Descrição é obrigátorio'
+        ]);
+
+        if ($validator->fails())
+            return response()->json([
+                'error' => true,
+                'message' => $validator->messages()
+            ], 422);
+
         try {
             $todoListId = $this->model->create([
                 'title' => $request->title,
@@ -49,24 +65,37 @@ class TodoListController extends Controller
                 'message' => 'Tarefa criada com sucesso',
                 'data' => $todoListId
             ]);
-
         } catch (Exception $e) {
-           return response()->json([
-            'error' => true,
-            'message' => 'Erro ao criar tarefa'
-           ]);
+            return response()->json([
+                'error' => true,
+                'message' => 'Erro ao criar tarefa'
+            ]);
         }
     }
 
     /**
      * Atuliza a tarefa
      *
-     * @param UpdateTodoListRequest $request
+     * @param Request $request
      * @return void
      * @author Junior <hjuniorbsilva@gmail.com>
      */
-    public function update(UpdateTodoListRequest $request)
+    public function update(Request $request)
     {
+        $validator = Validator::make($request->all(), [
+            'title' => 'required',
+            'description' => 'required',
+        ], [
+            'title.required' => 'Título é obrigátorio',
+            'description.required' => 'Descrição é obrigátorio'
+        ]);
+
+        if ($validator->fails())
+            return response()->json([
+                'error' => true,
+                'message' => $validator->messages()
+            ], 422);
+
         try {
             $this->model->find($request->id)->update([
                 'title' => $request->title,
@@ -88,11 +117,11 @@ class TodoListController extends Controller
     /**
      * Muda o status da tarefa
      *
-     * @param UpdateStatusTodoListRequest $request
+     * @param Request $request
      * @return void
      * @author Junior <hjuniorbsilva@gmail.com>
      */
-    public function updateStatus(UpdateStatusTodoListRequest $request)
+    public function updateStatus(Request $request)
     {
         try {
             $this->model->find($request->id)->update([
@@ -113,7 +142,7 @@ class TodoListController extends Controller
     /**
      * Apaga a tarefa
      *
-     * @param DeleteTodoListRequest $request
+     * @param Request $request
      * @return void
      * @author Junior <hjuniorbsilva@gmail.com>
      */
