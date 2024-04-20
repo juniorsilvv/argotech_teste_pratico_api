@@ -123,9 +123,15 @@ class TodoListController extends Controller
      */
     public function updateStatus(Request $request)
     {
+        /**
+         * Validando se o status informado será 1 ou 0. Caso seja diferente define 0
+         * por padrão
+         */
+        $statusAllowed  = [0, 1];
+        $status = in_array($request->status, $statusAllowed) ? $request->status : 0;
         try {
             $this->model->find($request->id)->update([
-                'status' => $request->status
+                'status' => $status
             ]);
             return response()->json([
                 'error' => false,
